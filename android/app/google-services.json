@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "580080220948",
+    "project_id": "e-salakanmi-ffe31",
+    "storage_bucket": "e-salakanmi-ffe31.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580080220948:android:dbe84b83fd05c74fb42001",
+        "android_client_info": {
+          "package_name": "com.example.esalakanmi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "580080220948-u4sgbq8989mo0utcokhv3f4ju8hedl34.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBWe7O0XR65j-d4OJhsqVDMvMyd1BDifk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "580080220948-u4sgbq8989mo0utcokhv3f4ju8hedl34.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
