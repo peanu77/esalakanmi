@@ -70,9 +70,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     twilioFlutter = TwilioFlutter(
-        accountSid: "AC2c3f9dad9eb1081b300044c970fd32f8",
-        authToken: "f79afceb536e0948fa151ca1dc77c292",
-        twilioNumber: "+19595005672");
+        accountSid: "",
+        authToken: "",
+        twilioNumber: "");
 
     super.initState();
   }
