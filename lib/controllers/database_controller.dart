@@ -59,12 +59,7 @@ class DatabaseController {
           email: emailController.text.trim(),
           password: passwordController.text.trimLeft());
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: (context) =>
-                  SharedPref.getEmail() == "admin@gmail.com" ||
-                          SharedPref.getEmail() == "admin@yahoo.com"
-                      ? const AdminPage()
-                      : const LogInPageController()),
+          MaterialPageRoute(builder: (context) => const LogInPageController()),
           (route) => false);
     } on FirebaseAuthException catch (e) {
       if (e.code == "email-already-in-use") {
@@ -85,8 +80,9 @@ class DatabaseController {
     }
   }
 
-  userInfo(
+  Future userInfo(
       uid,
+      emailController,
       firstnameController,
       middlenameController,
       lastnameController,
@@ -95,7 +91,7 @@ class DatabaseController {
       provinceController,
       contact,
       genderValue,
-      d) {
+      d) async {
     CollectionReference ref = FirebaseFirestore.instance
         .collection('user')
         .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -103,6 +99,7 @@ class DatabaseController {
     // Create user data
     var data = {
       'uuid': uid,
+      'email': emailController,
       'firstname': firstnameController,
       'middlename': middlenameController,
       'lastname': lastnameController,
@@ -119,6 +116,7 @@ class DatabaseController {
   }
 
   incidentReport(
+    email,
     desc,
     category,
     date,
@@ -132,6 +130,7 @@ class DatabaseController {
         .collection('incident-report');
     // Create user data
     var data = {
+      'email': email,
       'description': desc,
       'category': category,
       'date': date,
@@ -142,5 +141,33 @@ class DatabaseController {
     };
 
     ref.add(data).then((value) => print('Success'));
+  }
+
+  Future myReport(
+    email,
+    desc,
+    category,
+    date,
+    time,
+    lat,
+    long,
+  ) async {
+    CollectionReference ref = FirebaseFirestore.instance
+        .collection('my-report')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('incident-report');
+    // Create user data
+    var reportData = {
+      'email': email,
+      'description': desc,
+      'category': category,
+      'date': date,
+      'time': time,
+      'latitude': lat,
+      'longitude': long,
+      'created': DateFormat.yMMMd().format(DateTime.now()),
+    };
+
+    ref.add(reportData).then((value) => print('My Report'));
   }
 }

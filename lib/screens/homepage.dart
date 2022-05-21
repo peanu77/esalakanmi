@@ -1,4 +1,6 @@
 import 'package:esalakanmi/controllers/shared_pref/shared_pref.dart';
+import 'package:esalakanmi/screens/directories_page.dart';
+import 'package:esalakanmi/screens/report_history.dart';
 import 'package:esalakanmi/screens/reportincident_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +10,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twilio_flutter/twilio_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,21 +24,28 @@ class _HomePageState extends State<HomePage> {
       .collection('user')
       .doc(FirebaseAuth.instance.currentUser?.uid)
       .collection('user_info');
+
+  // SharedPreferences _preferences =
+  //     SharedPreferences.getInstance() as SharedPreferences;
+
   String? incidentValue;
+
   var data;
+
+  bool isDone = false;
 
   Position? _currentPosition;
   String? _currentAddress;
   TwilioFlutter? twilioFlutter;
 
-  @override
-  void initState() {
-    twilioFlutter = TwilioFlutter(
-        accountSid: "ACbb9ea8f5dbdecee31f7b729bf2d531ea",
-        authToken: "3a5a523b2edde0f39cf30688f413b2de",
-        twilioNumber: "+12542796811");
-
-    super.initState();
+  Future sendSms(message, userNum) async {
+    await twilioFlutter
+        ?.sendSMS(
+            toNumber: "$userNum",
+            messageBody:
+                "EMEGERGENCY: $incidentValue, Someone needs help at maps.google.com/maps?saddr=${_currentPosition?.latitude ?? ""},${_currentPosition?.longitude ?? ""} in $_currentAddress?? "
+                " Please Respond immediately!!!'")
+        .then((value) => print('Done'));
   }
 
   List numList = [
@@ -45,20 +55,6 @@ class _HomePageState extends State<HomePage> {
     "+639981783349",
     "+639453741453"
   ];
-
-  Future sendSms(message, userNum) async {
-    await twilioFlutter
-        ?.sendSMS(
-            toNumber: "$userNum",
-            messageBody:
-                "EMEGERGENCY: $incidentValue, Someone needs help at maps.google.com/maps?saddr=${_currentPosition?.latitude},${_currentPosition?.longitude} in $_currentAddress Please Respond immediately!!!'")
-        .then((value) => print('Done'));
-    // twilioFlutter?.sendSMS(
-    //   toNumber: '+639505259391',
-    //   messageBody:
-    //       'EMEGERGENCY: Vehicular Accident, Someone needs help at maps.google.com/maps?saddr=16.52536348,120.34113977 Please Respond immediately!!!',
-    // );
-  }
 
   final incidentItem = [
     "Vehicular accident",
@@ -72,24 +68,36 @@ class _HomePageState extends State<HomePage> {
     "Vandalism"
   ];
   @override
+  void initState() {
+    twilioFlutter = TwilioFlutter(
+        accountSid: "AC2c3f9dad9eb1081b300044c970fd32f8",
+        authToken: "f79afceb536e0948fa151ca1dc77c292",
+        twilioNumber: "+19595005672");
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'e-SalakanMi',
           style: TextStyle(fontSize: 20.0, color: Colors.white),
         ),
         elevation: 0.0,
-        backgroundColor: Colors.blue[900],
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            onPressed: () {
+            onPressed: () async {
               FirebaseAuth.instance.signOut();
-              SharedPreferences _preferences =
-                  SharedPreferences.getInstance() as SharedPreferences;
 
-              _preferences.remove('username');
+              final sharedPreferences = await SharedPreferences.getInstance();
+
+              sharedPreferences.remove('username');
             },
             icon: const Icon(Icons.logout_outlined),
           )
@@ -110,7 +118,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
+              const Spacer(flex: 3),
               const Text(
                 'Welcome!',
                 style: TextStyle(
@@ -126,17 +134,11 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 30.0),
-              // Text(
-              //   "${data != null ? data['firstname'] : ""} ",
-              //   style: const TextStyle(color: Colors.orange),
-              // ),
-              // if (_currentPosition != null)
-              //   Text(
-              //       "LAT: ${_currentPosition?.latitude}, LNG: ${_currentPosition?.longitude}"),
-
-              //
-
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ReportHistoryPage())),
+                child: const Text('Report History'),
+              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.blue[900]),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
@@ -146,9 +148,16 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.blue[900]),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const DirectoriesPage())),
+                child: const Text(
+                  'Directories',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               const Spacer(flex: 2),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -184,22 +193,34 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-
               const Spacer(
                 flex: 3,
               ),
-
               if (_currentAddress != null)
-                Text(
-                  "My Current Location : ${_currentAddress!}",
-                  style: const TextStyle(
-                      fontSize: 16.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                //   Text(
+                //     "My Current Location : ${_currentAddress!}",
+                //     style: const TextStyle(
+                //         fontSize: 16.0,
+                //         color: Colors.white,
+                //         fontWeight: FontWeight.bold),
+                //   ),
+                // Text(
+                //   "My Current Location : ${_currentPosition?.latitude}",
+                //   style: const TextStyle(
+                //       fontSize: 16.0,
+                //       color: Colors.white,
+                //       fontWeight: FontWeight.bold),
+                // ),
+                // Text(
+                //   "My Current Location : ${_currentPosition?.longitude}",
+                //   style: const TextStyle(
+                //       fontSize: 16.0,
+                //       color: Colors.white,
+                //       fontWeight: FontWeight.bold),
+                // ),
+                const SizedBox(
+                  height: 50.0,
                 ),
-              const SizedBox(
-                height: 50.0,
-              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
@@ -207,8 +228,23 @@ class _HomePageState extends State<HomePage> {
                 onPressed: incidentValue != '' && incidentValue != null
                     ? () {
                         _determinePosition();
-                        _getCurrentLocation();
-                        multipleSMS();
+                        if (_currentPosition?.latitude != null &&
+                            _currentPosition?.longitude != null) {
+                          multipleSMS();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'Check your Internet connection or location and try again!'),
+                            ),
+                          );
+                        }
+                        if (_currentPosition?.latitude != null &&
+                            _currentPosition?.longitude != null) {
+                          multipleSMS();
+                        }
+
+                        // _getCurrentLocation();
                       }
                     : null,
                 child: const Icon(
@@ -250,7 +286,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<Position> _determinePosition() async {
+  _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -260,7 +296,13 @@ class _HomePageState extends State<HomePage> {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
-      return Future.error('Location services are disabled.');
+      return Future.error(
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location services are disabled.'),
+          ),
+        ),
+      );
     }
 
     permission = await Geolocator.checkPermission();
@@ -272,19 +314,50 @@ class _HomePageState extends State<HomePage> {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+        return Future.error(
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permissions are denied'),
+            ),
+          ),
+        );
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
+
       return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Location permissions are permanently denied, we cannot request permissions.'),
+          ),
+        ),
+      );
+    }
+    if (permission == LocationPermission.unableToDetermine) {
+      return Future.error(
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to determine'),
+          ),
+        ),
+      );
     }
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+            forceAndroidLocationManager: true)
+        .then((Position position) {
+      setState(() {
+        _currentPosition = position;
+        _getAddressFromLatLng();
+      });
+      isDone = true;
+    });
   }
 
   _getAddressFromLatLng() async {

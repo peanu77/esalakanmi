@@ -1,19 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class AdminPage extends StatefulWidget {
-  const AdminPage({Key? key}) : super(key: key);
+class ReportHistoryPage extends StatefulWidget {
+  const ReportHistoryPage({Key? key}) : super(key: key);
 
   @override
-  State<AdminPage> createState() => _AdminPageState();
+  State<ReportHistoryPage> createState() => _ReportHistoryPageState();
 }
 
-class _AdminPageState extends State<AdminPage> {
+class _ReportHistoryPageState extends State<ReportHistoryPage> {
   CollectionReference ref = FirebaseFirestore.instance
-      .collection('incident')
-      .doc('incident')
+      .collection('my-report')
+      .doc(FirebaseAuth.instance.currentUser?.uid)
       .collection('incident-report');
 
   var data;
@@ -23,18 +23,7 @@ class _AdminPageState extends State<AdminPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Admin'),
-          actions: [
-            IconButton(
-                onPressed: () async {
-                  FirebaseAuth.instance.signOut();
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs.remove('email');
-                },
-                icon: const Icon(Icons.logout_outlined))
-          ],
-          backgroundColor: Colors.blue[900],
-          elevation: 0.0,
+          title: const Text('Report History'),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
@@ -87,17 +76,6 @@ class _AdminPageState extends State<AdminPage> {
                                   height: 10.0,
                                 ),
                                 Text(
-                                  'Email : ${data['email'] ?? ""}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
                                   'Time : ${data['time'] ?? ""}',
                                   style: const TextStyle(
                                     color: Colors.white,
@@ -121,17 +99,6 @@ class _AdminPageState extends State<AdminPage> {
                                 ),
                                 Text(
                                   'Description : ${data['description'] ?? ""}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  'maps.google.com/maps?saddr=${data["latitude"] ?? ""},${data["longitude"] ?? ""}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

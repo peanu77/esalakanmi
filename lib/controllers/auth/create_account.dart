@@ -396,16 +396,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         final uidRes = uid.v4();
                         final formKey = _formKey.currentState!.validate();
                         if (_formKey.currentState!.validate()) {
+                          SharedPref.setUsername(firstnameController.text);
                           databaseController.createAccount(
                             _formKey,
                             emailController,
                             passwordController,
                             context,
                           );
-                          SharedPref.setUsername(firstnameController.text);
-                          SharedPref.setEmail(emailController.text);
+                          // SharedPref.setUsername(firstnameController.text);
+                          // SharedPref.setEmail(emailController.text);
                           databaseController.userInfo(
                             uidRes,
+                            emailController,
                             firstnameController.text,
                             middlenameController.text,
                             lastnameController.text,
